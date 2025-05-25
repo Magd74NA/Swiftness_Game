@@ -6,6 +6,8 @@ let jumpForce: Float32 = -600
 let playerScale: Float32 = 4
 let playerHeight: Float32 = 64
 
+let MAX_BUILDINGS = 100
+
 let left: Int32 = 263
 let right: Int32 = 262
 let jump: Int32 = 32  // Space
@@ -23,6 +25,8 @@ struct screenDimensions {
     print("window start")
   }
 }
+
+//START HERE
 //playing around with structs and inits probably not a good use but now I can initialize wherever I want with this one line
 _ = screenDimensions()
 
@@ -46,9 +50,48 @@ struct playerProperties {
 
 var player = playerProperties()
 
+  var player_camera = Camera2D(
+    offset : Vector2(x: Float32(GetScreenWidth())/2.0, y: Float32(GetScreenHeight())/2.0),
+    target : Vector2(x: 0 , y: Float32(GetScreenHeight())/2.0),
+    rotation : 0,
+    zoom : 1,
+  )
+
+var buildColors: [Color] = []
+var buildings: [Rectangle] = []
+var spacing = 0
+
+    for i in 0...100 
+    {
+      let h = Float32(GetRandomValue(100, 800))
+
+      buildings.append(
+        Rectangle(
+          x : -6000.0 + Float32(spacing),
+          y : Float32(GetScreenHeight()) - 130.0 - h,
+          width : Float32(GetRandomValue(50, 200)),
+          height : h,
+          )
+        )
+
+        spacing += Int(buildings[i].width);
+
+        buildColors.append(Color(
+            r : CUnsignedChar(GetRandomValue(200, 240)),
+            g : CUnsignedChar(GetRandomValue(200, 240)),
+            b : CUnsignedChar(GetRandomValue(200, 250)),
+            a : 255))
+    }
+
 while !WindowShouldClose() {
 
-  BeginDrawing()
+  BeginMode2D(player_camera)
+  DrawRectangle(-6000, 320, 13000, 8000, Color(r:200, g:200, b:200, a:255))
+
+  for i in 0 ..< MAX_BUILDINGS {
+    DrawRectangleRec(buildings[i], buildColors[i])
+  }
+  player_camera.target.x = player.player_pos.x
   ClearBackground(Color(r: 110, g: 184, b: 168, a: 255))
   player.player_vel.y += gravity * GetFrameTime()
 
@@ -113,6 +156,8 @@ while !WindowShouldClose() {
     height: player_run_height * playerScale
   )
 
+  
+  
   DrawTexturePro(
     player.player_run_texture, draw_player_source, draw_player_dest, Vector2(x: 0, y: 0), 0,
     Color(r: 245, g: 245, b: 245, a: 255))
